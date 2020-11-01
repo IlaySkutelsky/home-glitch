@@ -1,0 +1,8 @@
+body {
+  background-color: turquoise;
+  margin: 0;
+}
+
+canvas { 
+  display: block; 
+}
