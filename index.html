@@ -37,7 +37,7 @@
     {
       vUv = uv;
       vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-      gl_Position = projectionMatrix * mvPosition * vec4(cos(float(int(position.x*0.3 + time*0.02))),sin(float(int(position.z + sin(time*0.1))))*0.25+1.0, int(position.y),1.0) ;
+      gl_Position = projectionMatrix * mvPosition * vec4(cos(float(int(position.x*0.3 + time*0.02)))+1.1,sin(float(int(position.z + sin(time*0.1))))*0.25+1.0, int(position.y),1.0) ;
     }
 
   </script>

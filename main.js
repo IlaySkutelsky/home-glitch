@@ -6,7 +6,7 @@ let canvasTex = new THREE.Texture(generateTexture())
 canvasTex.needsUpdate = true
 
 uniforms1 = {
-  "time": { value: 1.0 },
+  "time": { value: Math.floor(Math.random()*1000) },
   "texture1": { type: "t", value: canvasTex }
 };
 
@@ -55,6 +55,7 @@ function animate() {
   houseGroup.rotation.x = (Math.sin(frameNum*0.005)+0.725) * 0.4;
   houseGroup.rotation.y -= (Math.sin(frameNum*0.02)+3)*0.002;
 
+  animateTitle()
 }
 
 function generateTexture() {
@@ -86,6 +87,18 @@ function generateTexture() {
 
   return canvas;
 
+}
+
+function animateTitle() {
+  if (Math.random()>0.007) return
+  let titleElm = document.querySelector("title")
+  let titleString = titleElm.innerText
+  let index = Math.floor(Math.random()*4)
+  let newChar
+  if (titleString.charAt(index) === titleString.charAt(index).toLowerCase()) newChar = titleString.charAt(index).toUpperCase()
+  else newChar = titleString.charAt(index).toLowerCase()
+  titleString = titleString.substr(0, index) + newChar + titleString.substr(index + 1)
+  titleElm.innerText = titleString
 }
 
 animate();
