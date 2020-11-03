@@ -10,11 +10,45 @@ uniforms1 = {
   "texture1": { type: "t", value: canvasTex }
 };
 
+
+
 const myMaterial = new THREE.ShaderMaterial( {
   uniforms: uniforms1,
-  vertexShader: document.getElementById( 'vertexShader' ).textContent,
-  fragmentShader: document.getElementById( 'fragment_shader' ).textContent
-} );
+  vertexShader: `
+    uniform float time;
+
+    varying vec2 vUv;
+
+    void main()
+    {
+      vUv = uv;
+      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+      gl_Position = projectionMatrix * mvPosition * vec4(cos(float(int(position.x*0.3 + time*0.02)))+1.1,sin(float(int(position.x + sin(time*0.1))))*0.25+1.0, int(position.y),1.0) ;
+    }
+  `,
+  fragmentShader: `
+    #define M_PI 3.1415926535897932384626433832795
+    
+    uniform sampler2D texture1;
+
+    uniform float time;
+
+    varying vec2 vUv;
+
+    void main( void ) {
+
+      vec2 position =  vUv*0.05;
+
+      float color = 0.0;
+      color += sin( position.x * cos( time / 30.0 ) * 80.0 ) + cos( position.y * cos( time / 30.0 ) * 10.0 );
+      color += sin( position.y * sin( time / 20.0 ) * 40.0 ) + cos( position.x * sin( time / 50.0 ) * 40.0 );
+      color += sin( position.x * sin( time / 10.0 ) * 10.0 ) + sin( position.y * sin( time / 70.0 ) * 80.0 );
+      color *= sin( time / 10.0 ) * 0.5;
+    
+      vec4 tex = texture2D(texture1, vUv);
+      gl_FragColor = vec4(color+0.1, cos(M_PI + color + time * 0.2) * 0.5, tan((tex.x)*0.1 + color*1.5 + time / 100.0 ) + 0.1 , 1.0 );
+    }
+  `})
 
 
 // Add box
@@ -44,7 +78,12 @@ camera.position.z = 2;
 
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
-document.body.appendChild( renderer.domElement );
+
+window.onload = function() {
+  console.log('got here');
+  document.body.appendChild( renderer.domElement )
+  animate()
+}
 
 function animate() {
 	let frameNum = requestAnimationFrame( animate );
@@ -90,7 +129,7 @@ function generateTexture() {
 }
 
 function animateTitle() {
-  if (Math.random()>0.007) return
+  if (Math.random()>0.017) return
   let titleElm = document.querySelector("title")
   let titleString = titleElm.innerText
   let index = Math.floor(Math.random()*4)
@@ -100,5 +139,3 @@ function animateTitle() {
   titleString = titleString.substr(0, index) + newChar + titleString.substr(index + 1)
   titleElm.innerText = titleString
 }
-
-animate();

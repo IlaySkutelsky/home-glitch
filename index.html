@@ -4,43 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="libs/three.js"></script>
-  <script defer src="main.js"></script>
-  <script id="fragment_shader" type="x-shader/x-fragment">
-
-    uniform sampler2D texture1;
-
-    uniform float time;
-
-    varying vec2 vUv;
-
-    void main( void ) {
-
-      vec2 position =  vUv*0.05;
-
-      float color = 0.0;
-      color += sin( position.x * cos( time / 30.0 ) * 80.0 ) + cos( position.y * cos( time / 30.0 ) * 10.0 );
-      color += sin( position.y * sin( time / 20.0 ) * 40.0 ) + cos( position.x * sin( time / 50.0 ) * 40.0 );
-      color += sin( position.x * sin( time / 10.0 ) * 10.0 ) + sin( position.y * sin( time / 70.0 ) * 80.0 );
-      color *= sin( time / 10.0 ) * 0.5;
-    
-      vec4 tex = texture2D(texture1, vUv);
-      gl_FragColor = vec4(color, cos(color + time * 0.2) * 0.5, tan((tex.x)*0.1 + color*1.5 + time / 100.0 ) , 1.0 );
-    }
-  </script>
-  <script id="vertexShader" type="x-shader/x-vertex">
-    
-    uniform float time;
-
-    varying vec2 vUv;
-
-    void main()
-    {
-      vUv = uv;
-      vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-      gl_Position = projectionMatrix * mvPosition * vec4(cos(float(int(position.x*0.3 + time*0.02)))+1.1,sin(float(int(position.z + sin(time*0.1))))*0.25+1.0, int(position.y),1.0) ;
-    }
-
-  </script>
+  <script src="main.js"></script>
   <link rel="stylesheet" href="style.css">
   <title>Home</title>
 </head>
