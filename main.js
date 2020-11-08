@@ -53,7 +53,7 @@ const myMaterial = new THREE.ShaderMaterial( {
     
       vec4 xor = texture2D(texture1, vUv);
       vec4 noise = texture2D(texture2, vUv);
-      gl_FragColor = vec4(cos((noise.x+0.5) * color + time * 0.2), color, tan((xor.x)*0.1 + color*1.5 + time / 100.0 ) + 0.1 , 1.0 );
+      gl_FragColor = vec4(cos((noise.x+0.5) * color + time * 0.2), color*(sin(time*0.05)+0.1), tan((xor.x)*0.1 + color*1.5 + time / 100.0 ) + 0.1 , 1.0 );
     }
   `})
 
@@ -89,9 +89,10 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 
 window.onload = function() {
-  console.log('got here');
   document.body.appendChild( renderer.domElement )
   animate()
+  record(renderer.domElement, 20*1000)
+    .then(url=>console.log(url))
 }
 
 function animate() {
@@ -147,18 +148,22 @@ function generateNoiseTexture() {
 
   let x = 0, y = 0;
 
-  noise.seed(Math.random());
-
+  let seed = Math.random()
   for ( let i = 0, j = 0; i < image.data.length; i += 4, j ++ ) {
 
     x = j % 256;
     y = ( x === 0 ) ? y + 1 : y;
+    
+    noise.seed(seed);
+    let valR = noise.simplex2(x / 256, y / 256) * 256
+    noise.seed(seed+100);
+    let valG = noise.simplex2(x / 256, y / 256) * 256
+    noise.seed(seed+200);
+    let valB = noise.simplex2(x / 256, y / 256) * 256
 
-    let val = noise.simplex2(x / 256, y / 256) * 256
-
-    image.data[ i ] = val;
-    image.data[ i + 1 ] = val;
-    image.data[ i + 2 ] = val;
+    image.data[ i ] = valR;
+    image.data[ i + 1 ] = valG;
+    image.data[ i + 2 ] = valB;
     image.data[ i + 3 ] =  255;
 
   }
@@ -178,4 +183,34 @@ function animateTitle() {
   else newChar = titleString.charAt(index).toLowerCase()
   titleString = titleString.substr(0, index) + newChar + titleString.substr(index + 1)
   titleElm.innerText = titleString
+}
+
+function record(canvas, time) {
+  var recordedChunks = [];
+  return new Promise(function (res, rej) {
+      var stream = canvas.captureStream(25 /*fps*/);
+      mediaRecorder = new MediaRecorder(stream, {
+          mimeType: "video/webm"
+      });
+
+      //ondataavailable will fire in interval of `time || 4000 ms`
+      mediaRecorder.start(time || 4000);
+
+      mediaRecorder.ondataavailable = function (e) {
+          recordedChunks.push(e.data);
+          if (mediaRecorder.state === 'recording') {
+              // after stop data avilable event run one more time
+              mediaRecorder.stop();
+          }
+
+      }
+
+      mediaRecorder.onstop = function (event) {
+          var blob = new Blob(recordedChunks, {
+              type: "video/webm"
+          });
+          var url = URL.createObjectURL(blob);
+          res(url);
+      }
+  })
 }
